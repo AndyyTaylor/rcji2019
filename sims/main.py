@@ -2,7 +2,8 @@
 import pygame
 
 from robot import Robot
-from environment import Environment
+# from environment import Environment
+from field import Field
 from config import SCREEN_WIDTH, SCREEN_HEIGHT, COLORS
 
 # To Be Done
@@ -17,7 +18,8 @@ pygame.init()
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 clock = pygame.time.Clock()
 
-environment = Environment()
+# environment = Environment()
+field = Field(10, 10)
 robot = Robot(480, 480)
 
 running = True
@@ -26,7 +28,7 @@ running = True
 tick = 0
 while running:
     robot.update()
-    environment.update(robot)
+    # environment.update(robot)
 
     tick += 1
 
@@ -34,8 +36,8 @@ while running:
 
     if tick % 1 == 0:
         screen.fill(COLORS.WHITE)
-
-        environment.render(screen)
+        field.render(screen)
+        # environment.render(screen)
         robot.render(screen)
 
         pygame.display.update()
