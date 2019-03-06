@@ -15,6 +15,7 @@ from config import SCREEN_WIDTH, SCREEN_HEIGHT, COLORS
 
 pygame.init()
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+clock = pygame.time.Clock()
 
 environment = Environment()
 robot = Robot(480, 480)
@@ -22,14 +23,22 @@ robot = Robot(480, 480)
 running = True
 
 # pylint: enable=invalid-name
-
+tick = 0
 while running:
-    screen.fill(COLORS.WHITE)
-
     robot.update()
+    environment.update(robot)
 
-    environment.render(screen)
-    robot.render(screen)
+    tick += 1
+
+    # clock.tick(60)
+
+    if tick % 1 == 0:
+        screen.fill(COLORS.WHITE)
+
+        environment.render(screen)
+        robot.render(screen)
+
+        pygame.display.update()
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -54,5 +63,3 @@ while running:
                 robot.set_y_vel(max(robot.get_y_vel(), 0))
             elif event.key == pygame.K_DOWN:
                 robot.set_y_vel(min(robot.get_y_vel(), 0))
-
-    pygame.display.update()
