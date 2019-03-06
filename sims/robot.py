@@ -24,7 +24,7 @@ class Robot:
             self.lidar_heading -= 2 * np.pi
 
     def render(self, screen: pygame.Surface):
-        pygame.draw.circle(screen, COLORS.BLUE, (self.x, self.y), ROBOT.RADIUS)
+        pygame.draw.circle(screen, COLORS.BLUE, (int(self.x), int(self.y)), ROBOT.RADIUS)
 
         lidar_pos = self.get_lidar_pos()
 

@@ -12,7 +12,7 @@ FIELD_LINE_WIDTH = 50
 WALL_WIDTH = 10
 
 ROBOT_WIDTH = 15
-ROBOT_SPEED = 5
+ROBOT_SPEED = 0.1
 
 LIDAR_RENDER_LENGTH = 30
 LIDAR_PING_RADIUS = 5
@@ -39,6 +39,7 @@ class FIELD:
     LINE_WIDTH = int(20 / FIELD_SCALE)
     GOAL_WIDTH = int(600 / FIELD_SCALE)
     GOAL_DEPTH = int(74 / FIELD_SCALE)
+    GOAL_WALL_WIDTH = int(20 / FIELD_SCALE)
     BOX_WIDTH = int(900 / FIELD_SCALE)
     BOX_DEPTH = int(300 / FIELD_SCALE)
     CENTER_POINT_GAP = int(300 / FIELD_SCALE)
@@ -52,6 +53,10 @@ class COLORS:
     GREEN = (0, 255, 0)
     RED = (255, 0, 0)
     GRAY = (128, 128, 128)
+
+
+class LIDAR:
+    PING_RADIUS = 5
 
 
 # pylint: enable=invalid-name,too-few-public-methods

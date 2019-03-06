@@ -29,12 +29,13 @@ tick = 0
 while running:
     robot.update()
     # environment.update(robot)
+    field.update(robot)
 
     tick += 1
 
-    # clock.tick(60)
+    clock.tick(2000 * 1)
 
-    if tick % 1 == 0:
+    if tick % 20 == 0:
         screen.fill(COLORS.WHITE)
         field.render(screen)
         # environment.render(screen)
