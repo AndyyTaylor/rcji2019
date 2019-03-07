@@ -3,6 +3,7 @@ import math
 import pygame
 import numpy as np
 
+from extractor import Extractor
 from config import COLORS, FIELD, LIDAR
 
 
@@ -42,13 +43,18 @@ class Field:
         self.generate_goals()
         self.generate_field_lines()
 
-        self.pings = []
-        self.landmarks = []
-        self.render_lines = []
+        self.extractor = Extractor()
+
+        self.prev_heading = 0
 
     def update(self, robot):
         lidar_endpoints = robot.get_lidar_pos()
         lidar_heading = robot.lidar_heading
+
+        if lidar_heading < self.prev_heading:
+            # self.extractor.landmarks = []
+            self.extractor.render_lines = []
+        self.prev_heading = lidar_heading
 
         closest_ping = None
         closest_dist = 9999
@@ -65,37 +71,10 @@ class Field:
                     closest_dist = dist
                     closest_ping = (x, y)
 
-        if closest_ping is not None and closest_ping not in self.pings:
-            self.pings.append(closest_ping)
+        if closest_ping is not None:
+            self.extractor.add_point(closest_ping)
 
-        self.analyse_pings()
-
-        while len(self.pings) > 20:
-            self.pings.pop(0)
-
-    def analyse_pings(self):
-        if len(self.pings) < 4:
-            return
-
-        recent_pings = self.pings[-4:]
-
-        angle1 = self.angle_between_points(*recent_pings[0], *recent_pings[1])
-        angle2 = self.angle_between_points(*recent_pings[-2], *recent_pings[-1])
-
-        diff = abs(angle1 - angle2)
-        if diff > math.pi:
-            diff -= math.pi
-
-        max_allowed_dist = math.tan(math.radians(5)) * FIELD.WIDTH
-        max_dist = 0
-        for i in range(len(recent_pings) - 1):
-            dist = self.distance(*recent_pings[i], *recent_pings[i + 1])
-            if dist > max_dist:
-                max_dist = dist
-
-        if abs(diff - math.pi / 2) < 0.1 and max_dist <= max_allowed_dist:
-            self.landmarks.append(self.midpoint(*recent_pings[1], *recent_pings[2]))
-            self.render_lines.append(recent_pings)
+        self.extractor.extract_landmarks()
 
     def angle_between_points(self, x1, y1, x2, y2):
         return math.atan2(y2 - y1, x2 - x1)
@@ -131,15 +110,15 @@ class Field:
 
         self.render_walls(field_surf)
 
-        for ping in self.pings:
+        for ping in self.extractor.points:
             pygame.draw.circle(field_surf, COLORS.BLUE, (int(ping[0]), int(ping[1])), LIDAR.PING_RADIUS)
 
-        for landmark in self.landmarks:
+        for landmark in self.extractor.landmarks:
             pygame.draw.circle(field_surf, COLORS.GREEN, (int(landmark[0]), int(landmark[1])), LIDAR.PING_RADIUS)
 
-        # for line in self.render_lines:
-        #     for i in range(len(line) - 1):
-        #         pygame.draw.line(field_surf, COLORS.RED, (int(line[i][0]), int(line[i][1])), (int(line[i + 1][0]), int(line[i + 1][1])))
+        for line in self.extractor.render_lines:
+            for i in range(len(line) - 1):
+                pygame.draw.line(field_surf, COLORS.RED, (int(line[i][0]), int(line[i][1])), (int(line[i + 1][0]), int(line[i + 1][1])), 3)
 
         screen.blit(field_surf, (self.x, self.y))
 
@@ -171,11 +150,11 @@ class Field:
         self.walls.append(Wall(FIELD.WIDTH - FIELD.BOUNDARY_GAP - FIELD.LINE_WIDTH, FIELD.BOUNDARY_GAP, FIELD.WIDTH - FIELD.BOUNDARY_GAP, FIELD.HEIGHT - FIELD.BOUNDARY_GAP, FIELD.LINE_WIDTH, False))
         self.walls.append(Wall(FIELD.BOUNDARY_GAP, FIELD.HEIGHT - FIELD.BOUNDARY_GAP - FIELD.LINE_WIDTH, FIELD.WIDTH - FIELD.BOUNDARY_GAP, FIELD.HEIGHT - FIELD.BOUNDARY_GAP, FIELD.LINE_WIDTH, False))
 
-    def distance(self, x1, y1, x2, y2):
-        return math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
-
     def point_intersects_line(self, x1, y1, x2, y2, x3, y3, x4, y4):
         intersect_x = ( (x1 * y2 - y1 * x2) * (x3 - x4) - (x1 - x2) * (x3 * y4 - y3 * x4) ) / ( (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4) or 0.0001)
         intersect_y = ( (x1 * y2 - y1 * x2) * (y3 - y4) - (y1 - y2) * (x3 * y4 - y3 * x4) ) / ( (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4) or 0.0001)
 
         return (intersect_x, intersect_y)
+
+    def distance(self, x1, y1, x2, y2):
+        return math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
