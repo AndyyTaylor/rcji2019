@@ -3,8 +3,9 @@ import math
 import pygame
 import numpy as np
 
+from fastslam import FastSlam
 from extractor import Extractor
-from config import COLORS, FIELD, LIDAR
+from config import COLORS, FIELD, LIDAR, ROBOT
 
 
 class Wall:
@@ -44,16 +45,19 @@ class Field:
         self.generate_field_lines()
 
         self.extractor = Extractor()
+        self.fastslam = FastSlam()
 
         self.prev_heading = 0
+        self.points = []
 
     def update(self, robot):
+        robot_pose = self.fastslam.get_estimated_pose()
         lidar_endpoints = robot.get_lidar_pos()
         lidar_heading = robot.lidar_heading
 
-        if lidar_heading < self.prev_heading:
+        # if lidar_heading < self.prev_heading:
             # self.extractor.landmarks = []
-            self.extractor.render_lines = []
+            # self.extractor.render_lines = []
         self.prev_heading = lidar_heading
 
         closest_ping = None
@@ -72,7 +76,16 @@ class Field:
                     closest_ping = (x, y)
 
         if closest_ping is not None:
-            self.extractor.add_point(closest_ping)
+            x, y = closest_ping
+            x -= robot.x
+            y -= robot.y
+            x += robot_pose[0]
+            y += robot_pose[1]
+            self.extractor.add_point((x, y))
+            self.points.append(closest_ping)
+
+        if len(self.points) > 20:
+            self.points.pop(0)
 
         self.extractor.extract_landmarks()
 
@@ -110,15 +123,18 @@ class Field:
 
         self.render_walls(field_surf)
 
-        for ping in self.extractor.points:
+        for ping in self.points:
             pygame.draw.circle(field_surf, COLORS.BLUE, (int(ping[0]), int(ping[1])), LIDAR.PING_RADIUS)
 
         for landmark in self.extractor.landmarks:
             pygame.draw.circle(field_surf, COLORS.GREEN, (int(landmark[0]), int(landmark[1])), LIDAR.PING_RADIUS)
 
-        for line in self.extractor.render_lines:
-            for i in range(len(line) - 1):
-                pygame.draw.line(field_surf, COLORS.RED, (int(line[i][0]), int(line[i][1])), (int(line[i + 1][0]), int(line[i + 1][1])), 3)
+        robot_pose = self.fastslam.get_estimated_pose()
+        pygame.draw.circle(field_surf, COLORS.GREEN, tuple(robot_pose), ROBOT.RADIUS)
+
+        # for line in self.extractor.render_lines:
+        #     for i in range(len(line) - 1):
+        #         pygame.draw.line(field_surf, COLORS.RED, (int(line[i][0]), int(line[i][1])), (int(line[i + 1][0]), int(line[i + 1][1])), 3)
 
         screen.blit(field_surf, (self.x, self.y))
 

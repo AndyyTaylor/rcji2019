@@ -30,11 +30,15 @@ class Robot:
 
         pygame.draw.line(screen, COLORS.GREEN, lidar_pos[0], lidar_pos[1])
 
-    def get_lidar_pos(self):
-        lidar_x = int(np.cos(self.lidar_heading) * LIDAR_RENDER_LENGTH + self.x)
-        lidar_y = int(np.sin(self.lidar_heading) * LIDAR_RENDER_LENGTH + self.y)
+    def get_lidar_pos(self, x=None, y=None):
+        if x is None or y is None:
+            x = self.x
+            y = self.y
 
-        return [(self.x, self.y), (lidar_x, lidar_y)]
+        lidar_x = int(np.cos(self.lidar_heading) * LIDAR_RENDER_LENGTH + x)
+        lidar_y = int(np.sin(self.lidar_heading) * LIDAR_RENDER_LENGTH + y)
+
+        return [(x, y), (lidar_x, lidar_y)]
 
     def set_x_vel(self, val):
         self.vel[0] = val

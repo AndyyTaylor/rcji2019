@@ -43,7 +43,7 @@ class Extractor:
 
         if abs(angle1 - angle2) > 0.01 and abs(angle1 - angle1) < math.radians(15):
             if self.distance(*self.line_p1, *self.line_p3) > min_dist:
-                # self.render_lines.append([self.line_p1, self.line_p2, self.line_p3])
+                self.render_lines.append([self.line_p1, self.line_p2, self.line_p3])
                 self.landmarks.append(self.midpoint(*self.line_p1, *self.line_p3))
             self.line_p1 = None
             self.line_p2 = None
@@ -70,6 +70,7 @@ class Extractor:
                 max_dist = dist
 
         if abs(diff - math.pi / 2) < 0.1 and max_dist <= max_allowed_dist:
+            self.render_lines.append(self.points.copy());
             self.landmarks.append(self.midpoint(*self.points[1], *self.points[2]))
 
     def angle_between_points(self, x1, y1, x2, y2):
