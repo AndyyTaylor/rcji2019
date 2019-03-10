@@ -51,13 +51,14 @@ class Field:
         self.points = []
 
     def update(self, robot):
-        robot_pose = self.fastslam.get_estimated_pose()
+        # robot_pose = self.fastslam.get_estimated_pose()
+        robot_pose = (robot.x, robot.y)
         lidar_endpoints = robot.get_lidar_pos()
         lidar_heading = robot.lidar_heading
 
-        # if lidar_heading < self.prev_heading:
-            # self.extractor.landmarks = []
-            # self.extractor.render_lines = []
+        if lidar_heading < self.prev_heading:
+            self.extractor.landmarks = []
+            self.extractor.render_lines = []
         self.prev_heading = lidar_heading
 
         closest_ping = None
@@ -123,8 +124,8 @@ class Field:
 
         self.render_walls(field_surf)
 
-        for ping in self.points:
-            pygame.draw.circle(field_surf, COLORS.BLUE, (int(ping[0]), int(ping[1])), LIDAR.PING_RADIUS)
+        # for ping in self.points:
+        #     pygame.draw.circle(field_surf, COLORS.BLUE, (int(ping[0]), int(ping[1])), LIDAR.PING_RADIUS)
 
         for landmark in self.extractor.landmarks:
             pygame.draw.circle(field_surf, COLORS.GREEN, (int(landmark[0]), int(landmark[1])), LIDAR.PING_RADIUS)
