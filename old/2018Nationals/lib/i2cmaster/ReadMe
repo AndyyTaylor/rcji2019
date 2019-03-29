@@ -1,0 +1,13 @@
+This is a modified version of Peter Fleury I2Cmaster library for any AVR devices. 
+See his homepage for more information: 
+http://homepage.hispeed.ch/peterfleury/group__pfleury__ic2master.html
+
+Ths library is modified to work with the Lego Ultrasonic Sensor (I2C frequency set to 11494,253Hz),
+and the CPU frequency has been set to the Arduino (16MHz).
+
+It is entended to work with the NXT Shield (http://blog.tkjelectronics.dk/2011/10/nxt-shield-ver2/)
+by Kristian Lauszus
+
+The reason why one can not use the official I2C library (Wire.h) is that it does not support repeated start.
+
+Keywords has also been added.

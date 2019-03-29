@@ -52,13 +52,20 @@ class Field:
 
     def update(self, robot):
         # robot_pose = self.fastslam.get_estimated_pose()
+
+        filtered_landmarks = []
+        for l in self.extractor.landmarks:
+            if math.sqrt((l[0] - 20) ** 2 + (l[1] - 740) ** 2) < 50:
+                filtered_landmarks.append(l)
+        self.extractor.landmarks = filtered_landmarks
+
         robot_pose = (robot.x, robot.y)
         lidar_endpoints = robot.get_lidar_pos()
         lidar_heading = robot.lidar_heading
 
-        if lidar_heading < self.prev_heading:
-            self.extractor.landmarks = []
-            self.extractor.render_lines = []
+        # if lidar_heading < self.prev_heading:
+        #     self.extractor.landmarks = []
+        #     self.extractor.render_lines = []
         self.prev_heading = lidar_heading
 
         closest_ping = None
