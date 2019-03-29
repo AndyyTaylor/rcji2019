@@ -26,6 +26,7 @@ class Extractor:
     def extract_landmarks(self):
         self.extract_corners()
         self.extract_lines()
+        print(self.landmarks)
 
     def extract_lines(self):
         if len(self.points) < 3:

@@ -22,13 +22,15 @@ clock = pygame.time.Clock()
 field = Field(10, 10)
 robot = Robot(480, 480)
 
+particles = []
+landmarks = []
+
 running = True
 
-# pylint: enable=invalid-name
 tick = 0
+# pylint: enable=invalid-name
 while running:
     robot.update()
-    # environment.update(robot)
     field.update(robot)
 
     tick += 1
@@ -38,7 +40,7 @@ while running:
     if tick % 20 == 0:
         screen.fill(COLORS.WHITE)
         field.render(screen)
-        # environment.render(screen)
+
         robot.render(screen)
 
         pygame.display.update()
